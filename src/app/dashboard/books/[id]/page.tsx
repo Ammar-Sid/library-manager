@@ -33,7 +33,7 @@ export default async function BookPage({ params }: BookPageProps) {
               <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-slate-500">
                 <span className="flex items-center gap-1.5">
                   <User className="h-3.5 w-3.5" />
-                  {book.user.name ?? book.user.email}
+                  {book.user?.name ?? book.user?.email ?? 'Community Member'}
                 </span>
                 <span className="flex items-center gap-1.5">
                   <Calendar className="h-3.5 w-3.5" />

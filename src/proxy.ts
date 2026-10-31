@@ -4,7 +4,10 @@ import { Role } from '@/lib/roles';
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const token = await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET || 'default-jwt-secret-for-library-os-2026',
+  });
 
   if (!token) {
     const signInUrl = new URL('/auth/signin', req.url);

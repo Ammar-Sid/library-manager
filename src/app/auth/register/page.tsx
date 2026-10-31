@@ -19,20 +19,25 @@ export default function RegisterPage() {
     setError('');
     setLoading(true);
 
-    const response = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password }),
-    });
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
 
-    const data = await response.json();
-    setLoading(false);
+      const data = await response.json().catch(() => ({}));
+      setLoading(false);
 
-    if (!response.ok) {
-      setError(data.error || 'Registration failed');
-    } else {
-      setSuccess(true);
-      setTimeout(() => router.push('/auth/signin'), 2000);
+      if (!response.ok) {
+        setError(data.error || 'Registration failed. Please try again.');
+      } else {
+        setSuccess(true);
+        setTimeout(() => router.push('/auth/signin'), 1500);
+      }
+    } catch {
+      setLoading(false);
+      setError('Connection error. Please try again.');
     }
   }
 
@@ -133,10 +138,10 @@ export default function RegisterPage() {
                 className="btn-primary w-full py-3"
               >
                 {loading ? (
-                  <>
+                  <span className="flex items-center justify-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Creating account…
-                  </>
+                  </span>
                 ) : (
                   'Create Account'
                 )}
