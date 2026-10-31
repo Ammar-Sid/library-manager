@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { BookOpen, Calendar, User, ExternalLink, Eye } from 'lucide-react';
 
@@ -23,8 +23,26 @@ interface BookGridProps {
 
 export default function BookGrid({ books }: BookGridProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [displayBooks, setDisplayBooks] = useState<Book[]>(books);
 
-  if (books.length === 0) {
+  useEffect(() => {
+    try {
+      const localBooks: Book[] = JSON.parse(
+        localStorage.getItem('library_client_books') || '[]'
+      );
+      if (localBooks.length > 0) {
+        const serverIds = new Set(books.map((b) => b.id));
+        const nonDuplicateLocal = localBooks.filter((b) => !serverIds.has(b.id));
+        setDisplayBooks([...nonDuplicateLocal, ...books]);
+      } else {
+        setDisplayBooks(books);
+      }
+    } catch {
+      setDisplayBooks(books);
+    }
+  }, [books]);
+
+  if (displayBooks.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <BookOpen className="h-16 w-16 text-indigo-400 mb-4 opacity-60" />
@@ -39,7 +57,7 @@ export default function BookGrid({ books }: BookGridProps) {
       data-testid="book-grid"
       className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
     >
-      {books.map((book) => (
+      {displayBooks.map((book) => (
         <article
           key={book.id}
           data-testid={`book-card-${book.id}`}

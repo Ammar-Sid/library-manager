@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getActiveUser } from '@/lib/security';
 import { uploadPdfToBlob } from '@/lib/blob-storage';
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 6. Upload to Vercel Blob
+  // 6. Upload PDF
   let blobResult;
   try {
     blobResult = await uploadPdfToBlob(file, user.id);
@@ -74,6 +75,14 @@ export async function POST(req: NextRequest) {
       uploadedBy: user.id,
     },
   });
+
+  // Revalidate library paths so the new book appears immediately
+  try {
+    revalidatePath('/dashboard');
+    revalidatePath('/api/books');
+  } catch {
+    // In edge runtime or test environments
+  }
 
   return NextResponse.json(
     {

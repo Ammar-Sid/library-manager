@@ -2,6 +2,9 @@ import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { BookOpen, User, Calendar, Download } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface BookPageProps {
   params: Promise<{ id: string }>;
 }
@@ -9,10 +12,19 @@ interface BookPageProps {
 export default async function BookPage({ params }: BookPageProps) {
   const { id } = await params;
 
-  const book = await prisma.book.findUnique({
+  let book = await prisma.book.findUnique({
     where: { id },
     include: { user: { select: { name: true, email: true } } },
   });
+
+  // If not found by primary id, also search by pdfUrl containing id
+  if (!book) {
+    book = await prisma.book.findFirst({
+      where: {
+        OR: [{ pdfUrl: `/api/books/files/${id}` }, { pdfUrl: { contains: id } }],
+      },
+    });
+  }
 
   if (!book) notFound();
 

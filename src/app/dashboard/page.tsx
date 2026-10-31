@@ -2,6 +2,9 @@ import { prisma } from '@/lib/prisma';
 import BookGrid from '@/components/BookGrid';
 import { Search } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface DashboardPageProps {
   searchParams: Promise<{ page?: string; search?: string }>;
 }

@@ -53,8 +53,21 @@ export default function UploadPage() {
     if (!response.ok) {
       setError(data.error || 'Upload failed');
     } else {
+      if (data.book) {
+        try {
+          const existing = JSON.parse(localStorage.getItem('library_client_books') || '[]');
+          existing.unshift(data.book);
+          localStorage.setItem('library_client_books', JSON.stringify(existing));
+        } catch {
+          // Ignore localStorage errors
+        }
+      }
       setSuccess(true);
-      setTimeout(() => router.push('/dashboard'), 2000);
+      router.refresh();
+      setTimeout(() => {
+        router.push('/dashboard');
+        router.refresh();
+      }, 1500);
     }
   }
 
