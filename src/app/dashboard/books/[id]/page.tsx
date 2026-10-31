@@ -1,9 +1,15 @@
 import { prisma } from '@/lib/prisma';
+import { PrismaClient } from '@prisma/client';
 import { notFound } from 'next/navigation';
 import { BookOpen, User, Calendar, Download } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+
+// Real database client as fallback for books persisted in SQLite
+// (e.g. uploaded before server restart or before zero-db switch)
+const globalForDb = globalThis as unknown as { __realDb?: PrismaClient };
+const realDb = globalForDb.__realDb ?? (globalForDb.__realDb = new PrismaClient());
 
 interface BookPageProps {
   params: Promise<{ id: string }>;
@@ -24,6 +30,21 @@ export default async function BookPage({ params }: BookPageProps) {
         OR: [{ pdfUrl: `/api/books/files/${id}` }, { pdfUrl: { contains: id } }],
       },
     });
+  }
+
+  // Fallback: query the real SQLite database for previously-persisted books
+  if (!book) {
+    try {
+      const dbBook = await realDb.book.findUnique({
+        where: { id },
+        include: { user: { select: { name: true, email: true } } },
+      });
+      if (dbBook) {
+        book = dbBook as any;
+      }
+    } catch {
+      // Database may not be available in serverless environments
+    }
   }
 
   if (!book) notFound();
