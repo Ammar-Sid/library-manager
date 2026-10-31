@@ -26,15 +26,9 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      - name: Run Migrations (SQLite)
-        run: npx prisma migrate deploy
-        env:
-          DATABASE_URL: "file:./test.db"
-
       - name: Run Unit & Integration Tests
         run: npm run test
         env:
-          DATABASE_URL: "file:./test.db"
           NEXTAUTH_SECRET: ci_secret_key_1234567890
           NEXTAUTH_URL: http://localhost:3000
 
@@ -60,21 +54,14 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      - name: Run Migrations (SQLite)
-        run: npx prisma migrate deploy
-        env:
-          DATABASE_URL: "file:./e2e.db"
-
       - name: Build Application
         run: npm run build
         env:
           NEXTAUTH_SECRET: ci_secret_key_1234567890
           NEXTAUTH_URL: http://localhost:3000
-          DATABASE_URL: "file:./e2e.db"
 
       - name: Run Playwright E2E Tests
         run: npm run test:e2e
         env:
           NEXTAUTH_SECRET: ci_secret_key_1234567890
           NEXTAUTH_URL: http://localhost:3000
-          DATABASE_URL: "file:./e2e.db"

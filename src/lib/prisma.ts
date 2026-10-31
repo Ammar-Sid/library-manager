@@ -48,6 +48,26 @@ function initializeStore(): StoreData {
 
   const initialUsers: UserRecord[] = [
     {
+      id: 'e2e-admin',
+      email: 'admin@example.com',
+      name: 'E2E Admin',
+      password: bcrypt.hashSync('adminpassword123', 10),
+      role: Role.SUPER_ADMIN,
+      status: UserStatus.ACTIVE,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    },
+    {
+      id: 'e2e-test-user',
+      email: 'testuser@example.com',
+      name: 'E2E Test User',
+      password: bcrypt.hashSync('password123', 10),
+      role: Role.USER,
+      status: UserStatus.ACTIVE,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    },
+    {
       id: 'usr_admin_001',
       email: 'admin@library.com',
       name: 'System Admin',
